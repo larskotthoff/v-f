@@ -16,6 +16,12 @@ line {
     stroke: #888;
     stroke-width: 1;
 }
+.up {
+    fill: green;
+}
+.down {
+    fill: red;
+}
         </style>
     </head>
 
@@ -102,6 +108,15 @@ line {
                 .transition().duration(1000)
                 .attr("y", function(d) {
                     return y(d.value[d.value.length-1].rate);
+                })
+                .attr("class", function(d) {
+                    var v = d.value[d.value.length-1].rate,
+                        c = "curlabel";
+                    if(v != 1 && d.value.length > 2) {
+                        var vpre = d.value[d.value.length-2].rate;
+                        c += v > vpre ? " up" : (v < vpre ? " down" : "");
+                    }
+                    return c;
                 })
                 .text(function(d) {
                     var v = d.value[d.value.length-1].rate,
