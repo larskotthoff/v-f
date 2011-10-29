@@ -34,6 +34,7 @@ line {
             cscale =  d3.scale.category20c();
             dfmtd = d3.time.format("%Y-%m-%d"),
             dfmtt = d3.time.format("%H:%M:%S"),
+            base = "USD",
             margin = 30,
             width = window.innerWidth - margin,
             height = window.innerHeight*0.6,
@@ -51,6 +52,19 @@ line {
             return $.map(d, function(e) { return e.time; });
         }
 
+        function rebase() {
+            $.each(rates, function(k) {
+                if(k != base) {
+                    $.each(rates[k], function(i, d) {
+                        d.rate = d.rate/rates[base][i].rate;
+                    });
+                }
+            });
+            $.each(rates[base], function(i, d) {
+                d.rate = 1;
+            });
+        }
+
         svg.selectAll("path")
             .data(d3.entries(rates))
             .enter().append("svg:path")
@@ -60,7 +74,12 @@ line {
             .enter().append("svg:text")
             .attr("class", "curlabel")
             .attr("x", width - 90 - margin)
-            .attr("baseline-shift", "-30%");
+            .attr("baseline-shift", "-30%")
+            .on("click", function(d) {
+                base = d.key;
+                rebase();
+                updateGraph();
+            });
 
         function updateGraph() {
             var rmax = d3.max($.map(rates, getRates)),
@@ -69,23 +88,23 @@ line {
                     .sort(function(a, b) { return a - b; }),
                 tmax = times[times.length-1],
                 tmin = times[0],
-                x = d3.scale.linear().domain([tmin, tmax])
+                x = d3.scale.pow().exponent(1.5).domain([0, tmax-tmin])
                     .range([0, width-margin-100]),
                 y = d3.scale.log().domain([rmin, 1, rmax])
                     .range([height/2-(2*margin), 0, -height/2+margin]),
                 line = d3.svg.line()
                     .y(function(d) { return y(d.rate); })
-                    .x(function(d) { return x(d.time); });
+                    .x(function(d) { return x(d.time-tmin); });
 
             var ls = svg.selectAll("g.timelabel").data(times);
             ls.transition().duration(1000)
                 .attr("transform", function(d) {
-                    return "translate(" + x(d) + ",0)";
+                    return "translate(" + x(d-tmin) + ",0)";
                 });
             var groups = ls.enter().append("svg:g")
                 .attr("class", "timelabel")
                 .attr("transform", function(d) {
-                    return "translate(" + x(d) + ",0)";
+                    return "translate(" + x(d-tmin) + ",0)";
                 });
             groups.append("svg:line")
                 .attr("y1", height/2-margin)
@@ -139,8 +158,9 @@ line {
         function getJson(u) {
             var url = "http://openexchangerates.org/" + u;
             d3.json(url, function(json) {
+                var b = json.rates[base];
                 $.each(rates, function(k) {
-                    rates[k].push({"rate": json.rates[k],
+                    rates[k].push({"rate": json.rates[k]/b,
                         "time": json.timestamp});
                 });
                 updateGraph();
