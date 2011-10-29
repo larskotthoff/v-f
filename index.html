@@ -90,7 +90,7 @@ line {
                 tmin = times[0],
                 x = d3.scale.pow().exponent(1.5).domain([0, tmax-tmin])
                     .range([0, width-margin-100]),
-                y = d3.scale.log().domain([rmin, 1, rmax])
+                y = d3.scale.pow().exponent(.1).domain([rmin, 1, rmax])
                     .range([height/2-(2*margin), 0, -height/2+margin]),
                 line = d3.svg.line()
                     .y(function(d) { return y(d.rate); })
