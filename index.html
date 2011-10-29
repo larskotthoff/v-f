@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Exchange rates</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <script type="text/javascript" src="../d3.min.js"></script>
+        <script type="text/javascript" src="../d3.layout.min.js"></script>
+        <script type="text/javascript" src="../jquery-1.6.2.min.js"></script>
+        <style type="text/css"> 
+path {
+    stroke-width: 3;
+    fill: none;
+}
+        </style>
+    </head>
+
+    <body>
+        <div id="graph" style="position: fixed; top: 20%;"></div>
+        <script type="text/javascript">
+        (function () {
+        var cs = ["USD", "EUR", "CHF", "CAD", "AUD", "INR", "JPY", "CNY"],
+            cscale =  d3.scale.category20c();
+            rates = [],
+            margin = 25,
+            width = window.innerWidth - margin,
+            height = window.innerHeight*0.6,
+            svg = d3.select("#graph")
+                .append("svg:svg")
+                .attr("height", height)
+                .attr("width", width)
+                .append("svg:g")
+                .attr("transform", "translate(0," + height/2 + ")");
+
+        function filterRates(json) {
+            return $.map(d.rates, function(e, j) {
+                return cs.indexOf(j) > -1 ? { "rate": e, "currency": j} : null;
+            });
+        }
+
+        function getRates(d) {
+            return $.map(d.rates, function(e) { return e.rate; });
+        }
+
+        function updateGraph() {
+            var rmax = d3.max($.map(rates, getRates)),
+                rmin = d3.min($.map(rates, getRates)),
+                tmax = d3.max($.map(rates, function(d) { return d.time; })),
+                tmin = d3.min($.map(rates, function(d) { return d.time; })),
+        }
+
+        var rates = filterRates([ojson, json]),
+            rmax = d3.max($.map(rates, function(d) { return d.rate; })),
+            rmin = d3.min($.map(rates, function(d) { return d.rate; })),
+            tmax = d3.max($.map(rates, function(d) { return d.time; })),
+            tmin = d3.min($.map(rates, function(d) { return d.time; })),
+            nrates = d3.nest()
+                .key(function(d) { return d.currency; })
+                .entries(rates),
+            x = d3.scale.linear().domain([tmin, tmax])
+                .range([0, width-100]),
+            y = d3.scale.log().domain([rmin, 1, rmax])
+                .range([height/2-margin, 0, -height/2+margin]),
+            line = d3.svg.line()
+                .y(function(d) { return y(d.rate); })
+                .x(function(d) { return x(d.time); });
+
+        svg.selectAll("path")
+            .data(nrates)
+            .enter().append("svg:path")
+            .attr("stroke", function(d) { return cscale(d.key); })
+            .attr("d", function(d) { return line(d.values); });
+        svg.selectAll("text")
+            .data(nrates)
+            .enter().append("svg:text")
+            .attr("y", function(d) {
+                return y(d.values[d.values.length-1].rate);
+            })
+            .attr("x", width - 90)
+            .attr("baseline-shift", "-30%")
+            .text(function(d) {
+                var v = d.values[d.values.length-1].rate,
+                    vpre = d.values[d.values.length-2].rate,
+                    suf = (v == 1 ? "" : " " + v.toFixed(3) +
+                        (v > vpre ? "↑" : (v < vpre ? "↓" : "→")))
+                return d.key + suf;
+            });
+
+        d3.json("http://openexchangerates.org/historical/2011-10-23.json", function(json) {
+            rates.push({"time": json.timestamp; "rates": filterRates(json)});
+        });
+        d3.json("http://openexchangerates.org/historical/2011-10-24.json", function(json) {
+            rates.push({"time": json.timestamp; "rates": filterRates(json)});
+        });
+        d3.json("http://openexchangerates.org/historical/2011-10-25.json", function(json) {
+            rates.push({"time": json.timestamp; "rates": filterRates(json)});
+        });
+        d3.json("http://openexchangerates.org/historical/2011-10-26.json", function(json) {
+            rates.push({"time": json.timestamp; "rates": filterRates(json)});
+        });
+        d3.json("http://openexchangerates.org/historical/2011-10-27.json", function(json) {
+            rates.push({"time": json.timestamp; "rates": filterRates(json)});
+        });
+        d3.json("http://openexchangerates.org/historical/2011-10-28.json", function(json) {
+            rates.push({"time": json.timestamp; "rates": filterRates(json)});
+        });
+        d3.json("http://openexchangerates.org/latest.json", function(json) {
+            rates.push({"time": json.timestamp; "rates": filterRates(json)});
+        });
+        })();
+        </script>
+    </body>
+</html>
