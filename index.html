@@ -26,7 +26,7 @@ line {
     </head>
 
     <body>
-        <div id="graph" style="position: fixed; top: 20%;"></div>
+        <div id="graph" style="position: fixed; top: 10%;"></div>
         <script type="text/javascript">
         (function () {
         var rates = {"USD": [], "EUR": [], "CHF": [], "AUD": [], "INR": [],
@@ -35,15 +35,15 @@ line {
             dfmtd = d3.time.format("%Y-%m-%d"),
             dfmtt = d3.time.format("%H:%M:%S"),
             base = "USD",
-            margin = 30,
-            width = window.innerWidth - margin,
-            height = window.innerHeight*0.6,
+            margin = 100,
+            width = window.innerWidth - 30,
+            height = window.innerHeight*0.8,
             svg = d3.select("#graph")
                 .append("svg:svg")
                 .attr("height", height)
                 .attr("width", width)
                 .append("svg:g")
-                .attr("transform", "translate("+margin+","+height/2+")");
+                .attr("transform", "translate("+margin/2+","+height/2+")");
 
         function getRates(d) {
             return $.map(d, function(e) { return e.rate; });
@@ -73,7 +73,7 @@ line {
             .data(d3.entries(rates))
             .enter().append("svg:text")
             .attr("class", "curlabel")
-            .attr("x", width - 90 - margin)
+            .attr("x", width - 1.8*margin)
             .attr("baseline-shift", "-30%")
             .on("click", function(d) {
                 base = d.key;
@@ -89,9 +89,9 @@ line {
                 tmax = times[times.length-1],
                 tmin = times[0],
                 x = d3.scale.pow().exponent(1.5).domain([0, tmax-tmin])
-                    .range([0, width-margin-100]),
+                    .range([0, width-2*margin]),
                 y = d3.scale.pow().exponent(.1).domain([rmin, 1, rmax])
-                    .range([height/2-(2*margin), 0, -height/2+margin]),
+                    .range([height*0.3, 0, -height*0.3]),
                 line = d3.svg.line()
                     .y(function(d) { return y(d.rate); })
                     .x(function(d) { return x(d.time-tmin); });
@@ -107,14 +107,14 @@ line {
                     return "translate(" + x(d-tmin) + ",0)";
                 });
             groups.append("svg:line")
-                .attr("y1", height/2-margin)
-                .attr("y2", -height/2);
+                .attr("y1", height*0.33)
+                .attr("y2", -height*0.33);
             groups.append("svg:text")
-                .attr("transform", "translate(0," + (height/2-margin/2) + ")")
+                .attr("transform", "translate(0," + (height*0.3+40) + ")")
                 .attr("text-anchor", "middle")
                 .text(function(d) { return dfmtd(new Date(d*1000)); });
             groups.append("svg:text")
-                .attr("transform", "translate(0," + height/2 + ")")
+                .attr("transform", "translate(0," + (height*0.3+60) + ")")
                 .attr("text-anchor", "middle")
                 .text(function(d) { return dfmtt(new Date(d*1000)); });
 
