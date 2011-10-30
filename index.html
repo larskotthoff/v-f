@@ -30,7 +30,7 @@ line {
         <script type="text/javascript">
         (function () {
         var rates = {"USD": [], "EUR": [], "CHF": [], "AUD": [], "INR": [],
-                    "JPY": [], "CNY": []},
+                    "JPY": [], "CNY": [], "CAD": []},
             cscale =  d3.scale.category20c();
             dfmtd = d3.time.format("%Y-%m-%d"),
             dfmtt = d3.time.format("%H:%M:%S"),
@@ -118,6 +118,26 @@ line {
                 .attr("text-anchor", "middle")
                 .text(function(d) { return dfmtt(new Date(d*1000)); });
 
+            var ys = {};
+            $.each(d3.entries(rates), function(i, d) {
+                ys[d.key] = y(d.value[d.value.length-1].rate);
+            });
+            var order = d3.keys(ys).sort(function(a, b) {
+                    return ys[a] - ys[b];
+                }),
+                done = false;
+            while(!done) {
+                done = true;
+                for(var i = 0; i < order.length-1; i++) {
+                  var overlap = ys[order[i+1]] - ys[order[i]] - 20;
+                    if(overlap < -1e-10) {
+                        ys[order[i]] += overlap/2;
+                        ys[order[i+1]] -= overlap/2;
+                        done = false;
+                    }
+                }
+            }
+
             svg.selectAll("path")
                 .data(d3.entries(rates))
                 .transition().duration(1000)
@@ -125,9 +145,7 @@ line {
             svg.selectAll("text.curlabel")
                 .data(d3.entries(rates))
                 .transition().duration(1000)
-                .attr("y", function(d) {
-                    return y(d.value[d.value.length-1].rate);
-                })
+                .attr("y", function(d) { return ys[d.key]; })
                 .attr("class", function(d) {
                     var v = d.value[d.value.length-1].rate,
                         c = "curlabel";
