@@ -69,7 +69,7 @@ line {
             .data(d3.entries(rates))
             .enter().append("svg:path")
             .attr("stroke", function(d) { return cscale(d.key); });
-        svg.selectAll("text")
+        svg.selectAll("text.curlabel")
             .data(d3.entries(rates))
             .enter().append("svg:text")
             .attr("class", "curlabel")
@@ -80,6 +80,12 @@ line {
                 rebase();
                 updateGraph();
             });
+        svg.selectAll("line.curlabel")
+            .data(d3.entries(rates))
+            .enter().append("svg:line")
+            .attr("class", "curlabel")
+            .attr("x1", width - 2*margin)
+            .attr("x2", width - 1.88*margin);
 
         function updateGraph() {
             var rmax = d3.max($.map(rates, getRates)),
@@ -142,6 +148,13 @@ line {
                 .data(d3.entries(rates))
                 .transition().duration(1000)
                 .attr("d", function(d) { return line(d.value); });
+            svg.selectAll("line.curlabel")
+                .data(d3.entries(rates))
+                .transition().duration(1000)
+                .attr("y1", function(d) {
+                    return y(d.value[d.value.length-1].rate);
+                })
+                .attr("y2", function(d) { return ys[d.key]; });
             svg.selectAll("text.curlabel")
                 .data(d3.entries(rates))
                 .transition().duration(1000)
