@@ -136,7 +136,9 @@ line {
                 .attr("y1", height*0.35)
                 .attr("y2", -height*0.35);
             groups.append("svg:text")
-                .attr("transform", "translate(0," + (height*0.4) + ")")
+                .attr("transform", function(d, i) {
+                    return "translate(0," + ((i%2)*25+height*0.38) + ")";
+                })
                 .attr("text-anchor", "middle")
                 .text(function(d) {
                     var dat = new Date(d*1000),
