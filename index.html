@@ -32,8 +32,8 @@ line {
         var rates = {"USD": [], "EUR": [], "CHF": [], "AUD": [], "INR": [],
                     "JPY": [], "CNY": [], "CAD": []},
             cscale =  d3.scale.category20c();
-            dfmtd = d3.time.format("%Y-%m-%d"),
-            dfmtt = d3.time.format("%H:%M:%S"),
+            longfmt = d3.time.format("%A"),
+            shortfmt = d3.time.format("%H:%M:%S"),
             base = "USD",
             margin = 100,
             width = window.innerWidth - 30,
@@ -94,7 +94,7 @@ line {
                     .sort(function(a, b) { return a - b; }),
                 tmax = times[times.length-1],
                 tmin = times[0],
-                x = d3.scale.pow().exponent(1.5).domain([0, tmax-tmin])
+                x = d3.scale.linear().domain([0, tmax-tmin])
                     .range([0, width-2*margin]),
                 y = d3.scale.pow().exponent(.1).domain([rmin, 1, rmax])
                     .range([height*0.3, 0, -height*0.3]),
@@ -113,16 +113,17 @@ line {
                     return "translate(" + x(d-tmin) + ",0)";
                 });
             groups.append("svg:line")
-                .attr("y1", height*0.33)
-                .attr("y2", -height*0.33);
+                .attr("y1", height*0.35)
+                .attr("y2", -height*0.35);
             groups.append("svg:text")
-                .attr("transform", "translate(0," + (height*0.3+40) + ")")
+                .attr("transform", "translate(0," + (height*0.4) + ")")
                 .attr("text-anchor", "middle")
-                .text(function(d) { return dfmtd(new Date(d*1000)); });
-            groups.append("svg:text")
-                .attr("transform", "translate(0," + (height*0.3+60) + ")")
-                .attr("text-anchor", "middle")
-                .text(function(d) { return dfmtt(new Date(d*1000)); });
+                .text(function(d) {
+                    var dat = new Date(d*1000),
+                        curdat = new Date();
+                    return (curdat - dat > (1000 * 60 * 60 * 24) ?
+                        longfmt(dat) : shortfmt(dat));
+                });
 
             var ys = {};
             $.each(d3.entries(rates), function(i, d) {
