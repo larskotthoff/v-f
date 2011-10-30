@@ -8,8 +8,16 @@
         <script type="text/javascript" src="../d3.time.min.js"></script>
         <script type="text/javascript" src="../jquery-1.6.2.min.js"></script>
         <style type="text/css"> 
+body {
+    font: 12px Verdana, Palatino, Helvetica, sans;
+}
+h1 {
+    font-weight: normal;
+    font-size: 4em;
+    margin: 0 0 0.3em;
+}
 path {
-    stroke-width: 3;
+    stroke-width: 5;
     fill: none;
 }
 line {
@@ -26,7 +34,19 @@ line {
     </head>
 
     <body>
+        <div style="position: fixed; top: 10px; left: 10px">
+            <h1>Foreign exchange rates</h1>
+            Data is updated automatically every hour. Click currency to show
+            numbers relative to it.
+        </div>
         <div id="graph" style="position: fixed; top: 10%;"></div>
+        <div style="position: fixed; bottom: 10px; left: 10px">
+            Data courtesy of <a href="http://openexchangerates.org">Open Source
+                Exchange Rates</a>.
+        </div>
+        <div style="position: fixed; bottom: 10px; right: 10px">
+            Lars Kotthoff 2011
+        </div>
         <script type="text/javascript">
         (function () {
         var rates = {"USD": [], "EUR": [], "CHF": [], "AUD": [], "INR": [],
