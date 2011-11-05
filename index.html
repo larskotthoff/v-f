@@ -203,14 +203,14 @@ line {
         }
 
         var fmt = d3.time.format("historical/%Y-%m-%d.json"),
-            d = new Date(),
-            urls = [7,6,5,4,3,2,1].map(function(i) {
-                return fmt(new Date(d.getTime()-i*86400000));
-            });
-        urls.push("latest.json");
-
-        function getJson(u) {
-            var url = "http://openexchangerates.org/" + u;
+            d = new Date();
+        function getJson(i) {
+            var url = "http://openexchangerates.org/";
+            if(i > 0) {
+                url = url + fmt(new Date(d.getTime()-i*86400000));
+            } else {
+                url = url + "latest.json";
+            }
             d3.json(url, function(json) {
                 var b = json.rates[base];
                 $.each(rates, function(k) {
@@ -218,14 +218,14 @@ line {
                         "time": json.timestamp});
                 });
                 updateGraph();
+                if(i > 0) {
+                    setTimeout(getJson, 1000, i-1);
+                } else {
+                    setTimeout(getJson, 1000 * 60 * 60, 0);
+                }
             });
         }
-
-        $.each(urls, function(i, url) {
-            setTimeout(getJson, (i + 1) * 1000, url);
-        });
-
-        setInterval(getJson, 1000 * 60 * 60, urls[urls.length-1]);
+        setTimeout(getJson, 1000, 6);
         })();
         </script>
     </body>
